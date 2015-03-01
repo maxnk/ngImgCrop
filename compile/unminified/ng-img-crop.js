@@ -2,10 +2,10 @@
  * ngImgCrop v0.3.2
  * https://github.com/alexk111/ngImgCrop
  *
- * Copyright (c) 2014 Alex Kaul
+ * Copyright (c) 2015 Alex Kaul
  * License: MIT
  *
- * Generated at Wednesday, December 3rd, 2014, 3:54:12 PM
+ * Generated at Sunday, March 1st, 2015, 3:18:00 PM
  */
 (function() {
 'use strict';
@@ -1557,14 +1557,14 @@ crop.factory('cropHost', ['$document', 'cropAreaCircle', 'cropAreaSquare', 'crop
         }
         newImage.onload = function(){
           events.trigger('load-done');
-
+    
           cropEXIF.getData(newImage,function(){
             var orientation=cropEXIF.getTag(newImage,'Orientation');
-
+    
             if([3,6,8].indexOf(orientation)>-1) {
               var canvas = document.createElement("canvas"),
-                  ctx=canvas.getContext("2d"),
-                  cw = newImage.width, ch = newImage.height, cx = 0, cy = 0, deg=0;
+              ctx=canvas.getContext("2d"),
+              cw = newImage.width, ch = newImage.height, cx = 0, cy = 0, deg=0;
               switch(orientation) {
                 case 3:
                   cx=-newImage.width;
@@ -1582,21 +1582,26 @@ crop.factory('cropHost', ['$document', 'cropAreaCircle', 'cropAreaSquare', 'crop
                   ch = newImage.width;
                   cx=-newImage.width;
                   deg=270;
-                  break;
+                break;
               }
-
+    
               canvas.width = cw;
               canvas.height = ch;
               ctx.rotate(deg*Math.PI/180);
               ctx.drawImage(newImage, cx, cy);
-
+    
               image=new Image();
+              image.onload = function() {
+                resetCropHost();
+                events.trigger('image-updated');
+              };
+    
               image.src = canvas.toDataURL("image/png");
             } else {
               image=newImage;
+              resetCropHost();
+              events.trigger('image-updated');
             }
-            resetCropHost();
-            events.trigger('image-updated');
           });
         };
         newImage.onerror=function() {
